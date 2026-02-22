@@ -5,7 +5,7 @@ const testRcon = async () => {
     console.log("🚀 TEST RCON EN COURS...");
     try {
         const rcon = await Rcon.connect({
-            host: "172.18.0.1",
+            host: "naaphy.pincloud.ch",
             port: 25651,
             password: "abc12345"
         });
