@@ -1,12 +1,11 @@
-import { Rcon } from "rcon-client";
-import dotenv from "dotenv";
-dotenv.config();
+const {Rcon} = require("rcon-client");
+require('dotenv').config();
 
 /**
  * @param {string} command - La commande à exécuter sans "/"
  */
 
-export async function exec (command) {
+async function exec (command) {
     const rcon = new Rcon({
         host: process.env.HOST,
         port: parseInt(process.env.PORT),
@@ -24,3 +23,5 @@ export async function exec (command) {
         throw new Error('Impossible de rejoindre le serveur Minecraft.')
     }
 }
+
+module.exports = {exec}
