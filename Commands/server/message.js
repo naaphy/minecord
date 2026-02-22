@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, MessageFlags } = require("discord.js");
-import { exec } from "../../Functions/rcon";
+const { exec } = require("../../Functions/rcon")
 
 module.exports = {
     data: new SlashCommandBuilder()
