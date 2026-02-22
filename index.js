@@ -1,4 +1,5 @@
-import { Rcon } from "rcon-client";
+
+const {Rcon} = require("rcon-client");
 
 const testRcon = async () => {
     console.log("🚀 TEST RCON EN COURS...");
