@@ -1,7 +1,7 @@
 const {Events, ContainerBuilder, MessageFlags} = require('discord.js')
 const setting = require('../Config/bot.json')
 
-const {F} = require('../Functions/Format')
+const F = require('../Functions/Format')
 
 module.exports = {
     name: Events.MessageCreate,

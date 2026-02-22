@@ -12,4 +12,4 @@ async function F (string, message) {
     return string
 }
 
-export default F
+module.exports = F
