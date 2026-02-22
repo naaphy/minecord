@@ -6,7 +6,7 @@ const testRcon = async () => {
     try {
         const rcon = await Rcon.connect({
             host: "172.18.0.1",
-            port: 25661,
+            port: 25651,
             password: "abc12345"
         });
         console.log("✅ CONNECTÉ ! Envoi du message...");
