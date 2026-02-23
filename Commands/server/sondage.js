@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, MessageFlags } = require('discord.js')
+const { SlashCommandBuilder, MessageFlags, ContainerBuilder } = require('discord.js')
 const { exec } = require('../../Functions/rcon')
 
 module.exports = {
@@ -10,7 +10,8 @@ module.exports = {
                 .setName('create')
                 .setDescription('Create a new poll')
                 .addStringOption(option => option.setName('question').setDescription('The question for the poll').setRequired(true))
-                .addStringOption(option => option.setName('duration').setDescription('The duration of the poll in hours').setRequired(true))
+                .addStringOption(option => option.setName('answer1').setDescription('The first answer for the poll').setRequired(false))
+                .addStringOption(option => option.setName('answer2').setDescription('The second answer for the poll').setRequired(false))
         )
         .addSubcommand(subcommand =>
             subcommand
@@ -25,28 +26,42 @@ module.exports = {
         switch (subcommand) {
             case 'create':
                 const question = options.getString('question')
-                const duration = parseInt(options.getString('duration')) || 1
+                const answer1 = options.getString('answer1') || 'Yes'
+                const answer2 = options.getString('answer2') || 'No'
 
                 await interaction.reply({
                     content: 'Poll created successfully.',
                     flags: MessageFlags.Ephemeral
                 })
 
+                const container = new ContainerBuilder()
+                .addTextDisplayComponents(
+                    text => text.setContent(question)
+                )
+                .addSeparatorComponents(sep => sep)
+                .addSectionComponents(section => section
+                    .addTextDisplayComponents(text => text.setContent(answer1))
+                    .setButtonAccessory(button => button
+                        .setCustomId(`poll_${interaction.id}_1`).setLabel('Vote').setStyle('Success')
+                    )
+                )
+                .addSectionComponents(section => section
+                    .addTextDisplayComponents(text => text.setContent(answer2))
+                    .setButtonAccessory(button => button
+                        .setCustomId(`poll_${interaction.id}_2`).setLabel('Vote').setStyle('Danger')
+                    )
+                )
+
                 await interaction.channel.send({
-                    poll: {
-                        question: { text: question },
-                        duration: duration,
-                        answers: [
-                            { text: 'Yes' }, { text: 'No' }
-                        ]
-                    }
+                    components: [container],
+                    flags: MessageFlags.IsComponentsV2
                 })
 
                 await exec(`tellraw @a ${JSON.stringify([
                     { text: `${interaction.user.username} created a poll on Discord !\n\n`, color: "white" },
                     { text: `${question} (Duration: ${duration} hours)\n\n`, color: "dark_aqua" },
-                    { text: "[Yes] ", color: "green" },
-                    { text: "[No]", color: "red" }
+                    { text: `[${answer1}]`, color: "green" },
+                    { text: `[${answer2}]`, color: "red" }
                 ])}`);
 
                 break
@@ -68,8 +83,8 @@ module.exports = {
                 await exec(`tellraw @a ${JSON.stringify([
                     { text: `${interaction.user.username} ended a poll on Discord !\n\n`, color: "white" },
                     { text: `${pollMessage.poll.question.text}\n\n`, color: "dark_aqua" },
-                    { text: `[Yes: ${yesVotes}] `, color: "green" },
-                    { text: `[No: ${noVotes}]`, color: "red" }
+                    { text: `[${pollMessage.poll.answers[0]?.text || 'Yes'}: ${yesVotes}] `, color: "green" },
+                    { text: `[${pollMessage.poll.answers[1]?.text || 'No'}: ${noVotes}]`, color: "red" }
                 ])}`);
 
                 break
