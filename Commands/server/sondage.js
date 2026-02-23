@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js')
+const { SlashCommandBuilder, MessageFlags } = require('discord.js')
 const { exec } = require('../../Functions/rcon')
 
 module.exports = {
@@ -10,8 +10,7 @@ module.exports = {
         .setName('create')
         .setDescription('Create a new poll')
         .addStringOption(option => option.setName('question').setDescription('The question for the poll').setRequired(true))
-        .addStringOption(option => option.setName('options').setDescription('The options for the poll, separated by commas').setRequired(true))
-        .addStringOption(option => option.setName('duration').setDescription('The duration of the poll in seconds').setRequired(true))
+        .addStringOption(option => option.setName('duration').setDescription('The duration of the poll in hours').setRequired(true))
     )
     .addSubcommand(subcommand =>
         subcommand
@@ -26,17 +25,38 @@ module.exports = {
         switch (subcommand) {
             case 'create':
                 const question = options.getString('question')
-                const pollOptions = options.getString('options').split(',').map(option => option.trim())
-                const duration = parseInt(options.getString('duration'))
+                const duration = parseInt(options.getString('duration')) || 1
 
-                // Here you would implement the logic to create a poll, for example by storing it in a database
-                await interaction.reply(`Poll created with question: "${question}" and options: ${pollOptions.join(', ')}. Duration: ${duration} seconds.`)
+                await interaction.reply({
+                    content: 'Poll created successfully.',
+                    flags: MessageFlags.Ephemeral
+                })
+
+                await interaction.channel.send({
+                    poll: {
+                        question: {text: question},
+                        duration: duration * 3600,
+                        answers: [
+                            {text: 'Yes'}, {text: 'No'}
+                        ]
+                    }
+                })
+
+                await exec(`${interaction.user} (@${interaction.user.username}) created a poll on Discord !\n\n${question} (Duration: ${duration} hours)\n\n§a[Yes] §c[No]`)
+
                 break
 
             case 'end':
                 const pollId = options.getString('poll_id')
-                // Here you would implement the logic to end a poll, for example by updating its status in a database
-                await interaction.reply(`Poll with ID: "${pollId}" has been ended.`)
+                const poll = await interaction.channel.messages.fetch(pollId)
+
+                await interaction.reply({
+                    content: `Poll with ID ${pollId} ended successfully.`,
+                    flags: MessageFlags.Ephemeral
+                })
+
+                await exec(`${interaction.user} (@${interaction.user.username}) ended a poll on Discord !\n\n${poll.poll.question.text}\n\n§a[Yes: ${poll.poll.answers[0].votes}] §c[No: ${poll.poll.answers[1].votes}]`)
+
                 break
             default:
                 await interaction.reply('Unknown subcommand.')
