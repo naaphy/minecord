@@ -21,7 +21,7 @@ module.exports = {
         const message = options.getString('message')
 
         try {
-            const response = exec(`tell ${target} ${message}`)
+            const response = exec(`tellraw ${target} ${message}`)
             await interaction.reply({content: `Message !\n\n${response}`, flags: MessageFlags.Ephemeral})
         } catch (err) {
             await interaction.reply({content: `An error occurred while trying to message the player !\n\n${err.message}`, flags: MessageFlags.Ephemeral})
