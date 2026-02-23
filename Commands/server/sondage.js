@@ -53,18 +53,23 @@ module.exports = {
 
             case 'end':
                 const pollId = options.getString('poll_id')
-                const Poll = await interaction.channel.messages.fetch(pollId)
+                const pollMessage = await interaction.channel.messages.fetch(pollId, { force: true })
 
                 await interaction.reply({
                     content: `Poll with ID ${pollId} ended successfully.`,
                     flags: MessageFlags.Ephemeral
                 })
 
+                const answers = pollMessage.poll.answers
+
+                const yesVotes = answers[0]?.voteCount ?? answers[0]?.count ?? 0
+                const noVotes  = answers[1]?.voteCount ?? answers[1]?.count ?? 0
+
                 await exec(`tellraw @a ${JSON.stringify([
                     { text: `${interaction.user.username} ended a poll on Discord !\n\n`, color: "white" },
-                    { text: `${Poll.poll.question.text}`, color: "dark_aqua" },
-                    { text: `[Yes: ${Poll.poll.answers?.[0]?.count}] `, color: "green" },
-                    { text: `[No: ${Poll.poll.answers?.[1]?.count}]`, color: "red" }
+                    { text: `${pollMessage.poll.question.text}\n\n`, color: "dark_aqua" },
+                    { text: `[Yes: ${yesVotes}] `, color: "green" },
+                    { text: `[No: ${noVotes}]`, color: "red" }
                 ])}`);
 
                 break
