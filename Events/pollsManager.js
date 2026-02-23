@@ -24,17 +24,17 @@ module.exports = {
                 flags: MessageFlags.Ephemeral
             })
 
-            const container = interaction.message.components[0]
+            // const container = interaction.message.components[0]
 
-            container.components[1].components[1]
-            .setLabel(`Vote (${poll.yes.size})`)
+            // container.components[1].components[1]
+            // .setLabel(`Vote (${poll.yes.size})`)
 
-            container.components[2].components[1]
-            .setLabel(`Vote (${poll.no.size})`)
+            // container.components[2].components[1]
+            // .setLabel(`Vote (${poll.no.size})`)
 
-            await interaction.message.edit({
-                components: [container]
-            })
+            // await interaction.message.edit({
+            //     components: [container]
+            // })
         }
     }
 }
