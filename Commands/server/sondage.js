@@ -67,7 +67,7 @@ module.exports = {
 
                 await exec(`tellraw @a ${JSON.stringify([
                     { text: `${interaction.user.username} created a poll on Discord !\n\n`, color: "white" },
-                    { text: `${question} (Duration: ${duration} hours)\n\n`, color: "dark_aqua" },
+                    { text: `${question}\n\n`, color: "dark_aqua" },
                     { text: `[${answer1}]`, color: "green" },
                     { text: `[${answer2}]`, color: "red" }
                 ])}`);
