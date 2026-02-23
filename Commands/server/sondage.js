@@ -35,6 +35,10 @@ module.exports = {
                     flags: MessageFlags.Ephemeral
                 })
 
+                const messagee = await interaction.channel.send({
+                    content: 'Creating poll...',
+                })
+
                 const container = new ContainerBuilder()
                     .addTextDisplayComponents(
                         text => text.setContent(`# ${question}`)
@@ -43,17 +47,18 @@ module.exports = {
                     .addSectionComponents(section => section
                         .addTextDisplayComponents(text => text.setContent(answer1))
                         .setButtonAccessory(button => button
-                            .setCustomId(`poll_${interaction.id}_1`).setLabel('Vote').setStyle('Success')
+                            .setCustomId(`poll_${messagee.id}_1`).setLabel('Vote').setStyle('Success')
                         )
                     )
                     .addSectionComponents(section => section
                         .addTextDisplayComponents(text => text.setContent(answer2))
                         .setButtonAccessory(button => button
-                            .setCustomId(`poll_${interaction.id}_2`).setLabel('Vote').setStyle('Danger')
+                            .setCustomId(`poll_${messagee.id}_2`).setLabel('Vote').setStyle('Danger')
                         )
                     )
 
-                const messagee = await interaction.channel.send({
+                await messagee.edit({
+                    content: '',
                     components: [container],
                     flags: MessageFlags.IsComponentsV2
                 })
