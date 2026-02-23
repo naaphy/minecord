@@ -37,11 +37,11 @@ module.exports = {
 
                 const container = new ContainerBuilder()
                     .addTextDisplayComponents(
-                        text => text.setContent(question)
+                        text => text.setContent(`# ${question}`)
                     )
                     .addSeparatorComponents(sep => sep)
                     .addSectionComponents(section => section
-                        .addTextDisplayComponents(text => text.setContent(`# ${question}`))
+                        .addTextDisplayComponents(text => text.setContent(answer1))
                         .setButtonAccessory(button => button
                             .setCustomId(`poll_${interaction.id}_1`).setLabel('Vote').setStyle('Success')
                         )
@@ -100,11 +100,11 @@ module.exports = {
                 await message.edit({
                     components: [new ContainerBuilder()
                         .addTextDisplayComponents(
-                            text => text.setContent(question)
+                            text => text.setContent(`# ${poll.question} (Ended)`)
                         )
                         .addSeparatorComponents(sep => sep)
                         .addSectionComponents(section => section
-                            .addTextDisplayComponents(text => text.setContent(`# ${question}`))
+                            .addTextDisplayComponents(text => text.setContent(answer1))
                             .setButtonAccessory(button => button
                                 .setCustomId(`poll_${interaction.id}_1`).setLabel('Vote').setStyle('Success').setDisabled(true)
                             )
