@@ -75,8 +75,8 @@ module.exports = {
                 await exec(`tellraw @a ${JSON.stringify([
                     { text: `${interaction.user.username} created a poll on Discord !\n\n`, color: "white" },
                     { text: `${question}\n\n`, color: "dark_aqua" },
-                    { text: `[${answer1}]`, color: "green" },
-                    { text: `[${answer2}]`, color: "red" }
+                    { text: `[${answer1}] `, color: "green" },
+                    { text: `[${answer2}] `, color: "red" }
                 ])}`);
 
                 break
@@ -107,7 +107,7 @@ module.exports = {
                     { text: `${interaction.user.username} ended a poll on Discord !\n\n`, color: "white" },
                     { text: `${poll.question}\n\n`, color: "dark_aqua" },
                     { text: `[${poll.answer1}: ${yesPercent}%] `, color: "green" },
-                    { text: `[${poll.answer2}: ${noPercent}%]`, color: "red" }
+                    { text: `[${poll.answer2}: ${noPercent}%] `, color: "red" }
                 ])}`);
 
                 await message.edit({
