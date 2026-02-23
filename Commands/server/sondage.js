@@ -43,8 +43,8 @@ module.exports = {
                 })
 
                 await exec(`tellraw @a ${JSON.stringify([
-                    { text: `${interaction.user.username} created a poll on Discord !\n\n`, color: "gray" },
-                    { text: `${question} (Duration: ${duration} hours)\n\n`, color: "aqua" },
+                    { text: `${interaction.user.username} created a poll on Discord !\n\n`, color: "white" },
+                    { text: `${question} (Duration: ${duration} hours)\n\n`, color: "dark_aqua" },
                     { text: "[Yes] ", color: "green" },
                     { text: "[No]", color: "red" }
                 ])}`);
@@ -61,10 +61,10 @@ module.exports = {
                 })
 
                 await exec(`tellraw @a ${JSON.stringify([
-                    { text: `${interaction.user.username} ended a poll on Discord !\n\n`, color: "gray" },
-                    { text: `${poll.poll.question.text}`, color: "aqua" },
-                    { text: `[Yes: ${poll.poll.answers[0].votes}] `, color: "green" },
-                    { text: `[No: ${poll.poll.answers[1].votes}]`, color: "red" }
+                    { text: `${interaction.user.username} ended a poll on Discord !\n\n`, color: "white" },
+                    { text: `${poll.poll.question.text}`, color: "dark_aqua" },
+                    { text: `[Yes: ${poll.poll.answers[0].voteCount}] `, color: "green" },
+                    { text: `[No: ${poll.poll.answers[1].voteCount}]`, color: "red" }
                 ])}`);
 
                 break
