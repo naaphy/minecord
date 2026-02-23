@@ -3,22 +3,22 @@ const { exec } = require('../../Functions/rcon')
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName('sondage')
-    .setDescription('Create a poll with the specified question and options.')
-    .addSubcommand(subcommand =>
-        subcommand
-        .setName('create')
-        .setDescription('Create a new poll')
-        .addStringOption(option => option.setName('question').setDescription('The question for the poll').setRequired(true))
-        .addStringOption(option => option.setName('duration').setDescription('The duration of the poll in hours').setRequired(true))
-    )
-    .addSubcommand(subcommand =>
-        subcommand
-        .setName('end')
-        .setDescription('End an existing poll')
-        .addStringOption(option => option.setName('poll_id').setDescription('The ID of the poll to end').setRequired(true))
-    ),
-    async execute (interaction) {
+        .setName('sondage')
+        .setDescription('Create a poll with the specified question and options.')
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('create')
+                .setDescription('Create a new poll')
+                .addStringOption(option => option.setName('question').setDescription('The question for the poll').setRequired(true))
+                .addStringOption(option => option.setName('duration').setDescription('The duration of the poll in hours').setRequired(true))
+        )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('end')
+                .setDescription('End an existing poll')
+                .addStringOption(option => option.setName('poll_id').setDescription('The ID of the poll to end').setRequired(true))
+        ),
+    async execute(interaction) {
         const { options } = interaction
         const subcommand = options.getSubcommand()
 
@@ -34,15 +34,20 @@ module.exports = {
 
                 await interaction.channel.send({
                     poll: {
-                        question: {text: question},
+                        question: { text: question },
                         duration: duration,
                         answers: [
-                            {text: 'Yes'}, {text: 'No'}
+                            { text: 'Yes' }, { text: 'No' }
                         ]
                     }
                 })
 
-                await exec(`${interaction.user} (@${interaction.user.username}) created a poll on Discord !\\n\\n${question} (Duration: ${duration} hours)\\n\\n\u00A7a[Yes] \u00A7c[No]`)
+                await exec(`tellraw @a ${JSON.stringify([
+                    { text: `${interaction.user.username} created a poll on Discord !\n\n`, color: "gray" },
+                    { text: `${question} (Duration: ${duration} hours)\n\n`, color: "aqua" },
+                    { text: "[Yes] ", color: "green" },
+                    { text: "[No]", color: "red" }
+                ])}`);
 
                 break
 
@@ -55,7 +60,12 @@ module.exports = {
                     flags: MessageFlags.Ephemeral
                 })
 
-                await exec(`${interaction.user} (@${interaction.user.username}) ended a poll on Discord !\\n\\n${poll.poll.question.text}\\n\\n\u00A7a[Yes: ${poll.poll.answers[0].votes}] \u00A7c[No: ${poll.poll.answers[1].votes}]`)
+                await exec(`tellraw @a ${JSON.stringify([
+                    { text: `${interaction.user.username} ended a poll on Discord !\n\n`, color: "gray" },
+                    { text: `${poll.poll.question.text}`, color: "aqua" },
+                    { text: `[Yes: ${poll.poll.answers[0].votes}] `, color: "green" },
+                    { text: `[No: ${poll.poll.answers[1].votes}]`, color: "red" }
+                ])}`);
 
                 break
             default:
