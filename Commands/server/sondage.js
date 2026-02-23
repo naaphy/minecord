@@ -35,7 +35,7 @@ module.exports = {
                 await interaction.channel.send({
                     poll: {
                         question: {text: question},
-                        duration: duration * 3600,
+                        duration: duration,
                         answers: [
                             {text: 'Yes'}, {text: 'No'}
                         ]
