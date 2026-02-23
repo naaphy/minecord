@@ -53,13 +53,15 @@ module.exports = {
                         )
                     )
 
-                await interaction.channel.send({
+                const messagee = await interaction.channel.send({
                     components: [container],
                     flags: MessageFlags.IsComponentsV2
                 })
 
-                pollStore.createPoll(interaction.id, {
+                pollStore.createPoll(messagee.id, {
                     question,
+                    answer1,
+                    answer2,
                     yes: new Set(),
                     no: new Set(),
                     author: interaction.user.id
@@ -76,50 +78,66 @@ module.exports = {
 
             case 'end':
                 const pollId = options.getString('poll_id')
-                const poll = await pollStore.getPoll(pollId)
+                const poll = pollStore.getPoll(pollId)
 
-                await interaction.reply({
-                    content: `Poll with ID ${pollId} ended successfully.`,
-                    flags: MessageFlags.Ephemeral
-                })
+                if (!poll) {
+                    return interaction.reply({
+                        content: 'Sondage introuvable.',
+                        flags: MessageFlags.Ephemeral
+                    })
+                }
 
                 const message = await interaction.channel.messages.fetch(pollId)
 
                 const total = poll.yes.size + poll.no.size
-
                 const yesPercent = total ? Math.round((poll.yes.size / total) * 100) : 0
                 const noPercent = total ? Math.round((poll.no.size / total) * 100) : 0
+
+                await interaction.reply({
+                    content: `Poll terminé.`,
+                    flags: MessageFlags.Ephemeral
+                })
 
                 await exec(`tellraw @a ${JSON.stringify([
                     { text: `${interaction.user.username} ended a poll on Discord !\n\n`, color: "white" },
                     { text: `${poll.question}\n\n`, color: "dark_aqua" },
-                    { text: `[Yes: ${yesPercent}%] `, color: "green" },
-                    { text: `[No: ${noPercent}%]`, color: "red" }
+                    { text: `[${poll.answer1}: ${yesPercent}%] `, color: "green" },
+                    { text: `[${poll.answer2}: ${noPercent}%]`, color: "red" }
                 ])}`);
 
                 await message.edit({
                     components: [new ContainerBuilder()
-                        .addTextDisplayComponents(
-                            text => text.setContent(`# ${poll.question} (Ended)`)
+                        .addTextDisplayComponents(text =>
+                            text.setContent(`# ${poll.question} (Ended)`)
                         )
                         .addSeparatorComponents(sep => sep)
                         .addSectionComponents(section => section
-                            .addTextDisplayComponents(text => text.setContent(answer1))
+                            .addTextDisplayComponents(text =>
+                                text.setContent(`${poll.answer1} — ${poll.yes.size} votes`)
+                            )
                             .setButtonAccessory(button => button
-                                .setCustomId(`poll_${interaction.id}_1`).setLabel('Vote').setStyle('Success').setDisabled(true)
+                                .setCustomId('disabled1')
+                                .setLabel('Vote')
+                                .setStyle('Success')
+                                .setDisabled(true)
                             )
                         )
                         .addSectionComponents(section => section
-                            .addTextDisplayComponents(text => text.setContent(answer2))
-                            .setButtonAccessory(button => button
-                                .setCustomId(`poll_${interaction.id}_2`).setLabel('Vote').setStyle('Danger').setDisabled(true)
+                            .addTextDisplayComponents(text =>
+                                text.setContent(`${poll.answer2} — ${poll.no.size} votes`)
                             )
-                        )],
+                            .setButtonAccessory(button => button
+                                .setCustomId('disabled2')
+                                .setLabel('Vote')
+                                .setStyle('Danger')
+                                .setDisabled(true)
+                            )
+                        )
+                    ],
                     flags: MessageFlags.IsComponentsV2
                 })
 
                 pollStore.deletePoll(pollId)
-
                 break
             default:
                 await interaction.reply('Unknown subcommand.')
