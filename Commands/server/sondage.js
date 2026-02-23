@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, MessageFlags, ContainerBuilder } = require('discord.js')
 const { exec } = require('../../Functions/rcon')
 const pollStore = require('../../Functions/pollStore')
+const { text } = require('express')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -41,7 +42,9 @@ module.exports = {
 
                 const container = new ContainerBuilder()
                     .addTextDisplayComponents(
-                        text => text.setContent(`# ${question}`)
+                        text => text.setContent(`# ${question}`),
+                        text => text.setContent(`> *Poll created by <@${poll.author}>*`),
+                        text => text.setContent(`> *Poll ID : ${pollId}*`)
                     )
                     .addSeparatorComponents(sep => sep)
                     .addSectionComponents(section => section
@@ -112,13 +115,15 @@ module.exports = {
 
                 await message.edit({
                     components: [new ContainerBuilder()
-                        .addTextDisplayComponents(text =>
-                            text.setContent(`# ${poll.question} (Ended)`)
+                        .addTextDisplayComponents(
+                            text => text.setContent(`# ${poll.question} (Ended)`),
+                            text => text.setContent(`> *Poll created by <@${poll.author}>*`),
+                            text => text.setContent(`> *Poll ID : ${pollId}*`)
                         )
                         .addSeparatorComponents(sep => sep)
                         .addSectionComponents(section => section
-                            .addTextDisplayComponents(text =>
-                                text.setContent(`${poll.answer1} — ${poll.yes.size} votes`)
+                            .addTextDisplayComponents(text => 
+                                text.setContent(`${poll.answer1} — ${poll.yes.size} vote(s)`)
                             )
                             .setButtonAccessory(button => button
                                 .setCustomId('disabled1')
@@ -129,7 +134,7 @@ module.exports = {
                         )
                         .addSectionComponents(section => section
                             .addTextDisplayComponents(text =>
-                                text.setContent(`${poll.answer2} — ${poll.no.size} votes`)
+                                text.setContent(`${poll.answer2} — ${poll.no.size} vote(s)`)
                             )
                             .setButtonAccessory(button => button
                                 .setCustomId('disabled2')
