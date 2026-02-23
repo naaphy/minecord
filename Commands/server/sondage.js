@@ -42,7 +42,7 @@ module.exports = {
                     }
                 })
 
-                await exec(`${interaction.user} (@${interaction.user.username}) created a poll on Discord !\n\n${question} (Duration: ${duration} hours)\n\n§a[Yes] §c[No]`)
+                await exec(`${interaction.user} (@${interaction.user.username}) created a poll on Discord !\\n\\n${question} (Duration: ${duration} hours)\\n\\n§a[Yes] §c[No]`)
 
                 break
 
@@ -55,7 +55,7 @@ module.exports = {
                     flags: MessageFlags.Ephemeral
                 })
 
-                await exec(`${interaction.user} (@${interaction.user.username}) ended a poll on Discord !\n\n${poll.poll.question.text}\n\n§a[Yes: ${poll.poll.answers[0].votes}] §c[No: ${poll.poll.answers[1].votes}]`)
+                await exec(`${interaction.user} (@${interaction.user.username}) ended a poll on Discord !\\n\\n${poll.poll.question.text}\\n\\n§a[Yes: ${poll.poll.answers[0].votes}] §c[No: ${poll.poll.answers[1].votes}]`)
 
                 break
             default:
