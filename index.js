@@ -1,21 +1,18 @@
+const Discord = require('discord.js')
+const { Commands, Events } = require('./handlers')
+require('colors')
+require('dotenv').config();
+const express = require('express')
 
-const {Rcon} = require("rcon-client");
+const client = new Discord.Client({
+    intents: [Object.keys(Discord.GatewayIntentBits)], partials: [Object.keys(Discord.Partials)]
+})
 
-const testRcon = async () => {
-    console.log("🚀 TEST RCON EN COURS...");
-    try {
-        const rcon = await Rcon.connect({
-            host: "172.18.0.1",
-            port: 25671,
-            password: "abc12345"
-        });
-        console.log("✅ CONNECTÉ ! Envoi du message...");
-        await rcon.send("say TEST DEPUIS LE BOT");
-        await rcon.end();
-        console.log("👋 DÉCONNECTÉ PROPREMENT");
-    } catch (err) {
-        console.error("❌ LE TEST A ÉCHOUÉ :", err.message);
-    }
-};
+client.commands = new Discord.Collection()
 
-testRcon();
+const app = express()
+app.use(express.json())
+
+client.login(process.env.BOT_TOKEN).then(() => {
+    Events(client); Commands(client)
+})
