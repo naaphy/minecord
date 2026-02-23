@@ -43,8 +43,8 @@ module.exports = {
                 const container = new ContainerBuilder()
                     .addTextDisplayComponents(
                         text => text.setContent(`# ${question}`),
-                        text => text.setContent(`> *Poll created by <@${poll.author}>*`),
-                        text => text.setContent(`> *Poll ID : ${pollId}*`)
+                        text => text.setContent(`> *Poll created by <@${interaction.user.username}>*`),
+                        text => text.setContent(`> *Poll ID : ${messagee.id}*`)
                     )
                     .addSeparatorComponents(sep => sep)
                     .addSectionComponents(section => section
@@ -72,7 +72,7 @@ module.exports = {
                     answer2,
                     yes: new Set(),
                     no: new Set(),
-                    author: interaction.user.id
+                    author: interaction.user.username
                 })
 
                 await exec(`tellraw @a ${JSON.stringify([
@@ -117,8 +117,7 @@ module.exports = {
                     components: [new ContainerBuilder()
                         .addTextDisplayComponents(
                             text => text.setContent(`# ${poll.question} (Ended)`),
-                            text => text.setContent(`> *Poll created by <@${poll.author}>*`),
-                            text => text.setContent(`> *Poll ID : ${pollId}*`)
+                            text => text.setContent(`> *Poll created by <@${poll.author}>*`)
                         )
                         .addSeparatorComponents(sep => sep)
                         .addSectionComponents(section => section
