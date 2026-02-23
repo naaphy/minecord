@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, MessageFlags, ContainerBuilder } = require('discord.js')
 const { exec } = require('../../Functions/rcon')
+const pollStore = require('../../Functions/pollStore')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -35,26 +36,33 @@ module.exports = {
                 })
 
                 const container = new ContainerBuilder()
-                .addTextDisplayComponents(
-                    text => text.setContent(question)
-                )
-                .addSeparatorComponents(sep => sep)
-                .addSectionComponents(section => section
-                    .addTextDisplayComponents(text => text.setContent(answer1))
-                    .setButtonAccessory(button => button
-                        .setCustomId(`poll_${interaction.id}_1`).setLabel('Vote').setStyle('Success')
+                    .addTextDisplayComponents(
+                        text => text.setContent(question)
                     )
-                )
-                .addSectionComponents(section => section
-                    .addTextDisplayComponents(text => text.setContent(answer2))
-                    .setButtonAccessory(button => button
-                        .setCustomId(`poll_${interaction.id}_2`).setLabel('Vote').setStyle('Danger')
+                    .addSeparatorComponents(sep => sep)
+                    .addSectionComponents(section => section
+                        .addTextDisplayComponents(text => text.setContent(`# ${question}`))
+                        .setButtonAccessory(button => button
+                            .setCustomId(`poll_${interaction.id}_1`).setLabel('Vote').setStyle('Success')
+                        )
                     )
-                )
+                    .addSectionComponents(section => section
+                        .addTextDisplayComponents(text => text.setContent(answer2))
+                        .setButtonAccessory(button => button
+                            .setCustomId(`poll_${interaction.id}_2`).setLabel('Vote').setStyle('Danger')
+                        )
+                    )
 
                 await interaction.channel.send({
                     components: [container],
                     flags: MessageFlags.IsComponentsV2
+                })
+
+                pollStore.createPoll(interaction.id, {
+                    question,
+                    yes: new Set(),
+                    no: new Set(),
+                    author: interaction.user.id
                 })
 
                 await exec(`tellraw @a ${JSON.stringify([
@@ -68,24 +76,49 @@ module.exports = {
 
             case 'end':
                 const pollId = options.getString('poll_id')
-                const pollMessage = await interaction.channel.messages.fetch(pollId, { force: true })
+                const poll = await pollStore.getPoll(pollId)
 
                 await interaction.reply({
                     content: `Poll with ID ${pollId} ended successfully.`,
                     flags: MessageFlags.Ephemeral
                 })
 
-                const answers = pollMessage.poll.answers
+                const message = await interaction.channel.messages.fetch(pollId)
 
-                const yesVotes = answers[0]?.voteCount ?? answers[0]?.count ?? 0
-                const noVotes  = answers[1]?.voteCount ?? answers[1]?.count ?? 0
+                const total = poll.yes.size + poll.no.size
+
+                const yesPercent = total ? Math.round((poll.yes.size / total) * 100) : 0
+                const noPercent = total ? Math.round((poll.no.size / total) * 100) : 0
 
                 await exec(`tellraw @a ${JSON.stringify([
                     { text: `${interaction.user.username} ended a poll on Discord !\n\n`, color: "white" },
-                    { text: `${pollMessage.poll.question.text}\n\n`, color: "dark_aqua" },
-                    { text: `[${pollMessage.poll.answers[0]?.text || 'Yes'}: ${yesVotes}] `, color: "green" },
-                    { text: `[${pollMessage.poll.answers[1]?.text || 'No'}: ${noVotes}]`, color: "red" }
+                    { text: `${poll.question}\n\n`, color: "dark_aqua" },
+                    { text: `[Yes: ${yesPercent}%] `, color: "green" },
+                    { text: `[No: ${noPercent}%]`, color: "red" }
                 ])}`);
+
+                await message.edit({
+                    components: [new ContainerBuilder()
+                        .addTextDisplayComponents(
+                            text => text.setContent(question)
+                        )
+                        .addSeparatorComponents(sep => sep)
+                        .addSectionComponents(section => section
+                            .addTextDisplayComponents(text => text.setContent(`# ${question}`))
+                            .setButtonAccessory(button => button
+                                .setCustomId(`poll_${interaction.id}_1`).setLabel('Vote').setStyle('Success').setDisabled(true)
+                            )
+                        )
+                        .addSectionComponents(section => section
+                            .addTextDisplayComponents(text => text.setContent(answer2))
+                            .setButtonAccessory(button => button
+                                .setCustomId(`poll_${interaction.id}_2`).setLabel('Vote').setStyle('Danger').setDisabled(true)
+                            )
+                        )],
+                    flags: MessageFlags.IsComponentsV2
+                })
+
+                pollStore.deletePoll(pollId)
 
                 break
             default:
